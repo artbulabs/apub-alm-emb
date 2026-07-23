@@ -21,7 +21,7 @@
     #define PIR3_PIN       27
 
     // Reed switch (MC-38)
-    #define REED_PIN       32
+    #define REED1_PIN       32
 
 #elif defined(BOARD_LILYGO)
     // --- LILYGO T-A7670E R2 ---
@@ -38,7 +38,7 @@
     #define PIR3_PIN       -1
 
     // Reed switch (MC-38)
-    #define REED_PIN       -1
+    #define REED1_PIN       -1
 
 #elif defined(BOARD_NATIVE)
     // --- Native (PC/Linux) ---
@@ -50,7 +50,7 @@
     #define PIR1_PIN       -1
     #define PIR2_PIN       -1
     #define PIR3_PIN       -1
-    #define REED_PIN       -1
+    #define REED1_PIN       -1
 
 #else
     #error "No board selected. Set BOARD_DEVKIT, BOARD_LILYGO or BOARD_NATIVE in platformio.ini build_flags."
