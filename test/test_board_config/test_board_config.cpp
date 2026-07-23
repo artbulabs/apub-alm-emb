@@ -13,7 +13,7 @@ TEST(BoardConfigTest, NativePinsAreMinusOne) {
     EXPECT_EQ(PIR1_PIN, -1);
     EXPECT_EQ(PIR2_PIN, -1);
     EXPECT_EQ(PIR3_PIN, -1);
-    EXPECT_EQ(REED_PIN, -1);
+    EXPECT_EQ(REED1_PIN, -1);
 }
 
 int main(int argc, char **argv) {
