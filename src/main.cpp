@@ -47,6 +47,8 @@ void setup() {
     pinMode(PIR1_PIN, INPUT);
     pinMode(PIR2_PIN, INPUT);
     pinMode(PIR3_PIN, INPUT);
+
+    pinMode(REED_PIN, INPUT_PULLUP);
 }
 
 // ---------------------------------------------------------------------------
@@ -58,6 +60,20 @@ void loop() {
     checkAndAlert(pir1, "PIR1", now);
     checkAndAlert(pir2, "PIR2", now);
     checkAndAlert(pir3, "PIR3", now);
+
+    static int previousState = digitalRead(REED_PIN);
+
+    int state = digitalRead(REED_PIN);
+
+    if(state != previousState){
+        previousState = state;
+
+        if(state == LOW){
+            Serial.println("[INFO] Door closed");
+        }else{
+            Serial.println("[ALERT] Door opened");
+        }
+    }
 
     delay(10); // small delay to avoid busy-looping
 }
