@@ -2,6 +2,8 @@
 #include "board_config.h"
 #include "DebouncedInput.h"
 #include "AlarmStateMachine.h"
+#include "SerialNotifier.h"
+#include "CompositeNotifier.h"
 
 // ---------------------------------------------------------------------------
 // PinReader callbacks – one per sensor.
@@ -21,10 +23,15 @@ static DebouncedInput pir3(readPir3, 50);
 static DebouncedInput reed1(readReed1, 50);
 
 // ---------------------------------------------------------------------------
+//  Notifiers (Composite pattern – add more channels here in future)
+// ---------------------------------------------------------------------------
+static SerialNotifier serialNotifier;
+static CompositeNotifier notifier;
+
+// ---------------------------------------------------------------------------
 // Alarm state machine
 // ---------------------------------------------------------------------
 static AlarmStateMachine alarmSM;
-
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -63,10 +70,10 @@ void checkSensor(DebouncedInput& sensor, const char* sensorId, uint32_t now) {
         Serial.println(" activated");
         alarmSM.onSensorTriggered(sensorId);
         if(alarmSM.getState() == AlarmState::Triggered) {
-            Serial.print("[ALERT] Alarm triggered by: ");
-            Serial.println(sensorId);
-            // TODO M5: call notifier.sendAlert(sensorId) here
-            alarmSM.onNotificationSent(); // placeholder: instant "sent"
+            // Serial.print("[ALERT] Alarm triggered by: ");
+            // Serial.println(sensorId);
+            notifier.sendAlert(sensorId);
+            alarmSM.onNotificationSent();
         }
     }
 }
@@ -78,11 +85,13 @@ void handleSerialCommand() {
 
     if (cmd == "arm") {
         alarmSM.onArm();
-        Serial.println("[CMD] Armed");
+        // Serial.println("[CMD] Armed");
+        notifier.sendStatus("Armed");
         printStatus();
     } else if (cmd == "disarm") {
         alarmSM.onDisarm();
-        Serial.println("[CMD] Disarmed");
+        // Serial.println("[CMD] Disarmed");
+        notifier.sendStatus("Disarmed");
         printStatus();
     } else if (cmd == "status") {
         printStatus();
@@ -99,6 +108,10 @@ void handleSerialCommand() {
 void setup() {
     Serial.begin(115200);
     delay(2000); // Wait 2 seconds to allow the Serial Monitor to connect.
+
+    // Register notifiers (add NtfyNotifier, SmsNotifier here in future)
+    notifier.add(&serialNotifier);
+
     Serial.println("=== Alpha Alarm System ===");
     Serial.println("Board: " BOARD_NAME);
     // Serial.println("Monitoring sensors...");
