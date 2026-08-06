@@ -8,7 +8,7 @@
 using PinReader = bool (*)();
 
 class DebouncedInput {
-public:
+   public:
     // pinReader  - function that returns current raw pin state
     // debounceMs - how long the signal must be stable to count as changed
     explicit DebouncedInput(PinReader pinReader, uint32_t debounceMs = 50);
@@ -20,10 +20,10 @@ public:
     // Returns the last stable (debounced) state.
     bool getState() const;
 
-private:
-    PinReader   _pinReader;
-    uint32_t    _debounceMs;
-    bool        _stableState;
-    bool        _lastRawState;
-    uint32_t    _lastChangeMs;
+   private:
+    PinReader _pinReader;
+    uint32_t _debounceMs;
+    bool _stableState;
+    bool _lastRawState;
+    uint32_t _lastChangeMs;
 };
