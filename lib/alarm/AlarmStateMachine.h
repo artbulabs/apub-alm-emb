@@ -2,11 +2,7 @@
 #include <cstdint>
 
 // Alarm stystem states
-enum class AlarmState {
-    Disarmed,
-    Armed,
-    Triggered
-};
+enum class AlarmState { Disarmed, Armed, Triggered };
 
 // Triggered event data: which sensor fired
 struct SensorEvent {
@@ -14,11 +10,11 @@ struct SensorEvent {
 };
 
 class AlarmStateMachine {
-private:
+   private:
     AlarmState _state;
     const char* _lastTriggeredSensor;
 
-public:
+   public:
     explicit AlarmStateMachine();
 
     // State transition triggers

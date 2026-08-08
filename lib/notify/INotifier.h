@@ -4,7 +4,7 @@
 // INotifier - Strategy pattern interface for alarm notifications.
 // ---------------------------------------------------------------------------
 class INotifier {
-public:
+   public:
     virtual ~INotifier() = default;
 
     // Called when a sensor triggers the alarm.

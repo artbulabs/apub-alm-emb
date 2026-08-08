@@ -1,18 +1,26 @@
 #include <Arduino.h>
-#include "board_config.h"
-#include "DebouncedInput.h"
 #include "AlarmStateMachine.h"
-#include "SerialNotifier.h"
 #include "CompositeNotifier.h"
+#include "DebouncedInput.h"
+#include "SerialNotifier.h"
+#include "board_config.h"
 
 // ---------------------------------------------------------------------------
 // PinReader callbacks – one per sensor.
 // Each function reads the raw GPIO state for its assigned pin.
 // ---------------------------------------------------------------------------
-static bool readPir1() { return digitalRead(PIR1_PIN) == HIGH; }
-static bool readPir2() { return digitalRead(PIR2_PIN) == HIGH; }
-static bool readPir3() { return digitalRead(PIR3_PIN) == HIGH; }
-static bool readReed1() { return digitalRead(REED1_PIN) == HIGH; }
+static bool readPir1() {
+    return digitalRead(PIR1_PIN) == HIGH;
+}
+static bool readPir2() {
+    return digitalRead(PIR2_PIN) == HIGH;
+}
+static bool readPir3() {
+    return digitalRead(PIR3_PIN) == HIGH;
+}
+static bool readReed1() {
+    return digitalRead(REED1_PIN) == HIGH;
+}
 
 // ---------------------------------------------------------------------------
 // Sensor objects
@@ -56,7 +64,7 @@ void printStatus() {
     Serial.print("[STATUS] State: ");
     Serial.print(alarmSM.getStateName());
     const char* last = alarmSM.getLastTriggeredSensor();
-    if(last != nullptr) {
+    if (last != nullptr) {
         Serial.print(" | Last sensor: ");
         Serial.print(last);
     }
@@ -64,12 +72,12 @@ void printStatus() {
 }
 
 void checkSensor(DebouncedInput& sensor, const char* sensorId, uint32_t now) {
-    if(sensor.update(now) && sensor.getState()) {
+    if (sensor.update(now) && sensor.getState()) {
         Serial.print("[SENSOR] ");
         Serial.print(sensorId);
         Serial.println(" activated");
         alarmSM.onSensorTriggered(sensorId);
-        if(alarmSM.getState() == AlarmState::Triggered) {
+        if (alarmSM.getState() == AlarmState::Triggered) {
             // Serial.print("[ALERT] Alarm triggered by: ");
             // Serial.println(sensorId);
             notifier.sendAlert(sensorId);
@@ -79,7 +87,8 @@ void checkSensor(DebouncedInput& sensor, const char* sensorId, uint32_t now) {
 }
 
 void handleSerialCommand() {
-    if (!Serial.available()) return;
+    if (!Serial.available())
+        return;
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
 
@@ -107,7 +116,7 @@ void handleSerialCommand() {
 // ---------------------------------------------------------------------------
 void setup() {
     Serial.begin(115200);
-    delay(2000); // Wait 2 seconds to allow the Serial Monitor to connect.
+    delay(2000);  // Wait 2 seconds to allow the Serial Monitor to connect.
 
     // Register notifiers (add NtfyNotifier, SmsNotifier here in future)
     notifier.add(&serialNotifier);
@@ -132,9 +141,9 @@ void loop() {
 
     handleSerialCommand();
 
-    checkSensor(pir1,  "PIR1",  now);
-    checkSensor(pir2,  "PIR2",  now);
-    checkSensor(pir3,  "PIR3",  now);
+    checkSensor(pir1, "PIR1", now);
+    checkSensor(pir2, "PIR2", now);
+    checkSensor(pir3, "PIR3", now);
     checkSensor(reed1, "REED1", now);
 
     // checkAndAlert(pir1, "PIR1", now);
@@ -142,5 +151,5 @@ void loop() {
     // checkAndAlert(pir3, "PIR3", now);
     // checkAndAlert(reed1, "REED1", now);
 
-    delay(10); // small delay to avoid busy-looping
+    delay(10);  // small delay to avoid busy-looping
 }
