@@ -12,6 +12,15 @@ jobs:
       - name: Run native tests
         run: pio test -e native
 
+  sanitize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Run tests with AddressSanitizer and UBSan
+        run: pio test -e native_san
+
   format:
     runs-on: ubuntu-latest
     steps:
