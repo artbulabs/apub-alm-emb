@@ -5,13 +5,13 @@ void CompositeNotifier::add(INotifier* notifier) {
 }
 
 void CompositeNotifier::sendAlert(const char* sensorId) {
-    for (auto* n : _notifiers) {
-        n->sendAlert(sensorId);
+    for (auto* notifier : _notifiers) {
+        notifier->sendAlert(sensorId);
     }
 }
 
 void CompositeNotifier::sendStatus(const char* status) {
-    for (auto* n : _notifiers) {
-        n->sendStatus(status);
+    for (auto* notifier : _notifiers) {
+        notifier->sendStatus(status);
     }
 }

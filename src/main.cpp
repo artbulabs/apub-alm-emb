@@ -46,19 +46,19 @@ static AlarmStateMachine alarmSM;
 // ---------------------------------------------------------------------
 
 // checkAndAlert helper for clean per-sensor event handling
-void checkAndAlert(DebouncedInput& sensor, const char* name, uint32_t now) {
-    if (sensor.update(now)) {
-        if (sensor.getState()) {
-            Serial.print("[ALERT] ");
-            Serial.print(name);
-            Serial.println(" triggered!");
-        } else {
-            Serial.print("[INFO] ");
-            Serial.print(name);
-            Serial.println(" cleared.");
-        }
-    }
-}
+// void checkAndAlert(DebouncedInput& sensor, const char* name, uint32_t now) {
+//     if (sensor.update(now)) {
+//         if (sensor.getState()) {
+//             Serial.print("[ALERT] ");
+//             Serial.print(name);
+//             Serial.println(" triggered!");
+//         } else {
+//             Serial.print("[INFO] ");
+//             Serial.print(name);
+//             Serial.println(" cleared.");
+//         }
+//     }
+// }
 
 void printStatus() {
     Serial.print("[STATUS] State: ");
@@ -87,8 +87,9 @@ void checkSensor(DebouncedInput& sensor, const char* sensorId, uint32_t now) {
 }
 
 void handleSerialCommand() {
-    if (!Serial.available())
+    if (!Serial.available()) {
         return;
+    }
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
 

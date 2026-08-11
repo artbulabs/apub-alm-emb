@@ -10,12 +10,8 @@ struct SensorEvent {
 };
 
 class AlarmStateMachine {
-   private:
-    AlarmState _state;
-    const char* _lastTriggeredSensor;
-
    public:
-    explicit AlarmStateMachine();
+    explicit AlarmStateMachine() = default;
 
     // State transition triggers
     void onArm();
@@ -25,7 +21,11 @@ class AlarmStateMachine {
     void onNotificationFailed();
 
     // Queries
-    AlarmState getState() const;
-    const char* getLastTriggeredSensor() const;
-    const char* getStateName() const;
+    [[nodiscard]] AlarmState getState() const;
+    [[nodiscard]] const char* getLastTriggeredSensor() const;
+    [[nodiscard]] const char* getStateName() const;
+
+   private:
+    AlarmState _state{AlarmState::Disarmed};
+    const char* _lastTriggeredSensor{nullptr};
 };

@@ -1,11 +1,7 @@
 #include "DebouncedInput.h"
 
 DebouncedInput::DebouncedInput(PinReader pinReader, uint32_t debounceMs)
-    : _pinReader(pinReader),
-      _debounceMs(debounceMs),
-      _stableState(false),
-      _lastRawState(false),
-      _lastChangeMs(0) {}
+    : _pinReader(pinReader), _debounceMs(debounceMs) {}
 
 bool DebouncedInput::update(uint32_t nowMs) {
     bool rawState = _pinReader();

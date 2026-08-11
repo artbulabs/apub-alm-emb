@@ -18,12 +18,12 @@ class DebouncedInput {
     bool update(uint32_t nowMs);
 
     // Returns the last stable (debounced) state.
-    bool getState() const;
+    [[nodiscard]] bool getState() const;
 
    private:
     PinReader _pinReader;
     uint32_t _debounceMs;
-    bool _stableState;
-    bool _lastRawState;
-    uint32_t _lastChangeMs;
+    bool _stableState{false};
+    bool _lastRawState{false};
+    uint32_t _lastChangeMs{0};
 };

@@ -1,6 +1,4 @@
 #include "AlarmStateMachine.h"
-AlarmStateMachine::AlarmStateMachine()
-    : _state(AlarmState::Disarmed), _lastTriggeredSensor(nullptr) {}
 
 void AlarmStateMachine::onArm() {
     if (_state == AlarmState::Disarmed) {

@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
@@ -29,3 +33,27 @@ jobs:
         run: sudo apt-get install -y clang-format
       - name: Check formatting
         run: find src lib -name '*.cpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install cppcheck and clang-tidy
+        run: sudo apt-get install -y cppcheck clang-tidy
+      - name: Run cppcheck
+        run: |
+          cppcheck --enable=all --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --suppress=unmatchedSuppression \
+            --suppress=unusedFunction:src/main.cpp \
+            --suppress=unusedFunction:lib/alarm/AlarmStateMachine.cpp \
+            --suppress=unusedFunction:lib/notify/StubNotifier.h \
+            -I include -I lib/alarm -I lib/notify -I lib/sensors \
+            src lib
+      - name: Run clang-tidy
+        run: |
+          clang-tidy lib/**/*.cpp \
+            --checks='-*,clang-analyzer-*,modernize-*,readability-*,-modernize-use-trailing-return-type,-readability-magic-numbers' \
+            --header-filter='^'"$GITHUB_WORKSPACE"'/lib/.*' \
+            -- -I include -I lib/alarm -I lib/notify -I lib/sensors \
+            -D BOARD_NATIVE -std=c++17
