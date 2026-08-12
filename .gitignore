@@ -432,3 +432,8 @@ FodyWeavers.xsd
 .pio/
 *.o
 *.a
+
+# lgcov
+coverage_report/
+coverage.info
+coverage_filtered.info

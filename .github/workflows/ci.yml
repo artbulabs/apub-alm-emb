@@ -57,3 +57,28 @@ jobs:
             --header-filter='^'"$GITHUB_WORKSPACE"'/lib/.*' \
             -- -I include -I lib/alarm -I lib/notify -I lib/sensors \
             -D BOARD_NATIVE -std=c++17
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install PlatformIO and lcov
+        run: |
+          pip install platformio
+          sudo apt-get install -y lcov
+      - name: Run coverage
+        run: |
+          pio test -e native_cov
+          lcov --capture \
+               --directory .pio/build/native_cov \
+               --output-file coverage.info \
+               --branch-coverage \
+               --ignore-errors mismatch,inconsistent,deprecated
+          lcov --remove coverage.info \
+               '*/googletest/*' '*/test/*' '/usr/*' \
+               --output-file coverage_filtered.info \
+               --branch-coverage \
+               --ignore-errors mismatch,inconsistent,deprecated,unused
+          lcov --list coverage_filtered.info \
+               --branch-coverage \
+               --ignore-errors mismatch,inconsistent,deprecated
