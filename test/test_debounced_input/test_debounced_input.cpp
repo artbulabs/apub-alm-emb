@@ -2,7 +2,7 @@
 #include "DebouncedInput.h"
 
 // ---------------------------------------------------------------------------
-// Helpers – simulate pin state via a simple global variable.
+// Helpers - simulate pin state via a simple global variable.
 // In production code, this would be e.g. []{ return digitalRead(PIR1_PIN); }
 // ---------------------------------------------------------------------------
 static bool g_pinState = false;

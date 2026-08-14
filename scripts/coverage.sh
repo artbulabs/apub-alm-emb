@@ -1,8 +1,10 @@
 #!/bin/bash
-
+# =============================================================================
+# coverage.sh - Create coverage report
 # Runs tests with code coverage and generates an HTML coverage report.
 # The report is generated in the coverage_report directory.
-
+# Usage: ./scripts/coverage.sh
+# =============================================================================
 set -e
 
 build_dir=".pio/build/native_cov"

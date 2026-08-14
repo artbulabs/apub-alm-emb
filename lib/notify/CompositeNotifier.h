@@ -6,7 +6,7 @@
 // Allows sending alerts via multiple channels simultaneously.
 class CompositeNotifier : public INotifier {
    public:
-    // Takes raw pointer – ownership stays with caller.
+    // Takes raw pointer - ownership stays with caller.
     void add(INotifier* notifier);
 
     void sendAlert(const char* sensorId) override;

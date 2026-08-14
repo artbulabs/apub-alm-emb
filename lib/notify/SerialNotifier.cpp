@@ -14,7 +14,7 @@ void SerialNotifier::sendStatus(const char* status) {
 }
 
 #else
-// Native/test environment – Serial not available, do nothing.
+// Native/test environment - Serial not available, do nothing.
 void SerialNotifier::sendAlert(const char* /*sensorId*/) {}
 void SerialNotifier::sendStatus(const char* /*status*/) {}
 #endif
