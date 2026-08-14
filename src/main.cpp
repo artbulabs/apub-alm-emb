@@ -6,7 +6,7 @@
 #include "board_config.h"
 
 // ---------------------------------------------------------------------------
-// PinReader callbacks – one per sensor.
+// PinReader callbacks - one per sensor.
 // Each function reads the raw GPIO state for its assigned pin.
 // ---------------------------------------------------------------------------
 static bool readPir1() {
@@ -31,7 +31,7 @@ static DebouncedInput pir3(readPir3, 50);
 static DebouncedInput reed1(readReed1, 50);
 
 // ---------------------------------------------------------------------------
-//  Notifiers (Composite pattern – add more channels here in future)
+//  Notifiers (Composite pattern - add more channels here in future)
 // ---------------------------------------------------------------------------
 static SerialNotifier serialNotifier;
 static CompositeNotifier notifier;

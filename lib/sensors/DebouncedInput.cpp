@@ -7,7 +7,7 @@ bool DebouncedInput::update(uint32_t nowMs) {
     bool rawState = _pinReader();
 
     if (rawState != _lastRawState) {
-        // Raw state changed – reset the debounce timer
+        // Raw state changed - reset the debounce timer
         _lastRawState = rawState;
         _lastChangeMs = nowMs;
         return false;
@@ -15,7 +15,7 @@ bool DebouncedInput::update(uint32_t nowMs) {
 
     if (rawState != _stableState) {
         if ((nowMs - _lastChangeMs) >= _debounceMs) {
-            // Signal has been stable long enough – accept the change
+            // Signal has been stable long enough - accept the change
             _stableState = rawState;
             return true;
         }

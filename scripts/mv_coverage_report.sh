@@ -1,10 +1,14 @@
 #!/bin/bash
-
+# =============================================================================
+# mv_coverage_report.sh - Move the coverage report
 # Moves the coverage_report directory to the destination specified by dst_dir.
 # The directory is renamed with its creation date and time.
+# Usage: ./scripts/mv_coverage_report.sh
+# Note: Before using, set dst_dir to the destination directory.
+# =============================================================================
 
 # Set the destination directory for the coverage report.
-dst_dir=""
+dst_dir="$HOME/common_win/coverage_report"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 project_dir="$(dirname "$script_dir")"
