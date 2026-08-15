@@ -21,6 +21,9 @@ static bool readPir3() {
 static bool readReed1() {
     return digitalRead(REED1_PIN) == HIGH;
 }
+static bool readReed2() {
+    return digitalRead(REED2_PIN) == HIGH;
+}
 
 // ---------------------------------------------------------------------------
 // Sensor objects
@@ -29,6 +32,7 @@ static DebouncedInput pir1(readPir1, 50);
 static DebouncedInput pir2(readPir2, 50);
 static DebouncedInput pir3(readPir3, 50);
 static DebouncedInput reed1(readReed1, 50);
+static DebouncedInput reed2(readReed2, 50);
 
 // ---------------------------------------------------------------------------
 //  Notifiers (Composite pattern - add more channels here in future)
@@ -132,6 +136,7 @@ void setup() {
     pinMode(PIR2_PIN, INPUT);
     pinMode(PIR3_PIN, INPUT);
     pinMode(REED1_PIN, INPUT_PULLUP);
+    pinMode(REED2_PIN, INPUT_PULLUP);
 }
 
 // ---------------------------------------------------------------------------
@@ -146,6 +151,7 @@ void loop() {
     checkSensor(pir2, "PIR2", now);
     checkSensor(pir3, "PIR3", now);
     checkSensor(reed1, "REED1", now);
+    checkSensor(reed2, "REED2", now);
 
     // checkAndAlert(pir1, "PIR1", now);
     // checkAndAlert(pir2, "PIR2", now);
