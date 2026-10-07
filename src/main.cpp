@@ -1,9 +1,18 @@
 #include <Arduino.h>
+#include <WiFi.h>
+#include <esp_now.h>
 #include "AlarmStateMachine.h"
 #include "CompositeNotifier.h"
 #include "DebouncedInput.h"
 #include "SerialNotifier.h"
 #include "board_config.h"
+#include "espnow_message.h"
+
+// MAC address of ESP32-CAM node.
+// Run 'mac' command on ESP32-CAM Serial Monitor to get this value.
+// Replace XX with actual values from your ESP32-CAM module.
+// static uint8_t CAM_MAC_ADDRESS[] = {0xXX, 0xXX, 0xXX, 0xXX, 0xXX, 0xXX};
+static uint8_t CAM_MAC_ADDRESS[] = {0x68, 0x09, 0x47, 0x9B, 0x87, 0x6C};
 
 // ---------------------------------------------------------------------------
 // PinReader callbacks - one per sensor.
@@ -42,12 +51,58 @@ static CompositeNotifier notifier;
 
 // ---------------------------------------------------------------------------
 // Alarm state machine
-// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 static AlarmStateMachine alarmSM;
 
 // ---------------------------------------------------------------------------
+// ESP-NOW
+// ---------------------------------------------------------------------------
+void onDataSent(const uint8_t* macAddr, esp_now_send_status_t status) {
+    if (status == ESP_NOW_SEND_SUCCESS) {
+        Serial.println("[ESP-NOW] Message delivered");
+    } else {
+        Serial.println("[ESP-NOW] Message delivery failed");
+    }
+}
+
+void initEspNow() {
+    WiFi.mode(WIFI_STA);
+
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("[ERROR] ESP-NOW initialization failed");
+        return;
+    }
+
+    esp_now_register_send_cb(onDataSent);
+
+    // Register ESP32-CAM as peer
+    esp_now_peer_info_t peerInfo{};
+    memcpy(peerInfo.peer_addr, CAM_MAC_ADDRESS, 6);
+    peerInfo.channel = 0;
+    peerInfo.encrypt = false;
+
+    if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+        Serial.println("[ERROR] Failed to add ESP-NOW peer");
+        return;
+    }
+
+    Serial.println("[ESP-NOW] Initialized, peer registered");
+}
+
+void sendEspNowTrigger(const char* sensorId) {
+    EspNowMessage msg{};
+    strncpy(msg.sensorId, sensorId, sizeof(msg.sensorId) - 1);
+    msg.timestampMs = millis();
+    msg.messageType = 0;
+
+    esp_now_send(CAM_MAC_ADDRESS,
+                 reinterpret_cast<uint8_t*>(&msg),
+                 sizeof(msg));
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 // checkAndAlert helper for clean per-sensor event handling
 // void checkAndAlert(DebouncedInput& sensor, const char* name, uint32_t now) {
@@ -85,6 +140,7 @@ void checkSensor(DebouncedInput& sensor, const char* sensorId, uint32_t now) {
             // Serial.print("[ALERT] Alarm triggered by: ");
             // Serial.println(sensorId);
             notifier.sendAlert(sensorId);
+            sendEspNowTrigger(sensorId);  // send to ESP32-CAM
             alarmSM.onNotificationSent();
         }
     }
@@ -137,6 +193,8 @@ void setup() {
     pinMode(PIR3_PIN, INPUT);
     pinMode(REED1_PIN, INPUT_PULLUP);
     pinMode(REED2_PIN, INPUT_PULLUP);
+
+    initEspNow();
 }
 
 // ---------------------------------------------------------------------------
