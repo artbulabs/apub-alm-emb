@@ -95,9 +95,7 @@ void sendEspNowTrigger(const char* sensorId) {
     msg.timestampMs = millis();
     msg.messageType = 0;
 
-    esp_now_send(CAM_MAC_ADDRESS,
-                 reinterpret_cast<uint8_t*>(&msg),
-                 sizeof(msg));
+    esp_now_send(CAM_MAC_ADDRESS, reinterpret_cast<uint8_t*>(&msg), sizeof(msg));
 }
 
 // ---------------------------------------------------------------------------
