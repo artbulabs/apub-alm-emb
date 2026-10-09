@@ -39,8 +39,39 @@
     #define PIR3_PIN       -1
 
     // Reed switch (MC-38)
-    #define REED1_PIN       -1
-    #define REED2_PIN       -1
+    #define REED1_PIN      -1
+    #define REED2_PIN      -1
+
+#elif defined(BOARD_ESPCAM)
+    // --- ESP32-CAM AI Thinker ---
+
+    #define BOARD_NAME     "ESP32-CAM AI Thinker"
+    #define HAS_MODEM      0
+
+    // Sensor pins (not used on ESP32-CAM – no external sensors)
+    #define PIR1_PIN       -1
+    #define PIR2_PIN       -1
+    #define PIR3_PIN       -1
+    #define REED1_PIN      -1
+    #define REED2_PIN      -1
+
+    // Camera interface pins (internal connections, required by esp_camera library)
+    #define CAM_PWDN_PIN   32
+    #define CAM_RESET_PIN  -1
+    #define CAM_XCLK_PIN    0
+    #define CAM_SIOD_PIN   26
+    #define CAM_SIOC_PIN   27
+    #define CAM_Y9_PIN     35
+    #define CAM_Y8_PIN     34
+    #define CAM_Y7_PIN     39
+    #define CAM_Y6_PIN     36
+    #define CAM_Y5_PIN     21
+    #define CAM_Y4_PIN     19
+    #define CAM_Y3_PIN     18
+    #define CAM_Y2_PIN      5
+    #define CAM_VSYNC_PIN  25
+    #define CAM_HREF_PIN   23
+    #define CAM_PCLK_PIN   22
 
 #elif defined(BOARD_NATIVE)
     // --- Native (PC/Linux) ---
@@ -52,8 +83,25 @@
     #define PIR1_PIN       -1
     #define PIR2_PIN       -1
     #define PIR3_PIN       -1
-    #define REED1_PIN       -1
-    #define REED2_PIN       -1
+    #define REED1_PIN      -1
+    #define REED2_PIN      -1
+
+    #define CAM_PWDN_PIN   -1
+    #define CAM_RESET_PIN  -1
+    #define CAM_XCLK_PIN   -1
+    #define CAM_SIOD_PIN   -1
+    #define CAM_SIOC_PIN   -1
+    #define CAM_Y9_PIN     -1
+    #define CAM_Y8_PIN     -1
+    #define CAM_Y7_PIN     -1
+    #define CAM_Y6_PIN     -1
+    #define CAM_Y5_PIN     -1
+    #define CAM_Y4_PIN     -1
+    #define CAM_Y3_PIN     -1
+    #define CAM_Y2_PIN     -1
+    #define CAM_VSYNC_PIN  -1
+    #define CAM_HREF_PIN   -1
+    #define CAM_PCLK_PIN   -1
 
 #else
     #error "No board selected. Set BOARD_DEVKIT, BOARD_LILYGO or BOARD_NATIVE in platformio.ini build_flags."
