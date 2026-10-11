@@ -3,11 +3,27 @@
 
 #include "board_config.h"
 
+// Maximum buffer size for AT command responses and URC messages
+static constexpr uint16_t AT_BUFFER_MAX_LEN = 512;
+
+// ---------------------------------------------------------------------------
+// APN configuration for Orange Poland
+// ---------------------------------------------------------------------------
+#define ORANGE_APN "internet"
+#define ORANGE_USER "internet"
+#define ORANGE_PASS "internet"
+
 // ---------------------------------------------------------------------------
 // Modem serial port
 // LILYGO T-A7670E uses UART1 for modem communication
 // ---------------------------------------------------------------------------
 HardwareSerial modemSerial(1);
+
+// ---------------------------------------------------------------------------
+// Forward declarations
+// ---------------------------------------------------------------------------
+void sendAT(const char* cmd, uint32_t timeoutMs = 2000);
+String sendATGetResponse(const char* cmd, uint32_t timeoutMs = 2000);
 
 // ---------------------------------------------------------------------------
 // Modem power on sequence
@@ -39,7 +55,7 @@ void modemPowerOn() {
     while (millis() - start < BOOT_TIMEOUT_MS) {
         while (modemSerial.available()) {
             char c = modemSerial.read();
-            if (buffer.length() < 512) {  // Memory overflow protection
+            if (buffer.length() < AT_BUFFER_MAX_LEN) {  // Memory overflow protection
                 buffer += c;
             }
         }
@@ -59,7 +75,7 @@ void modemPowerOn() {
 // ---------------------------------------------------------------------------
 // Send AT command and print response
 // ---------------------------------------------------------------------------
-void sendAT(const char* cmd, uint32_t timeoutMs = 2000) {
+void sendAT(const char* cmd, uint32_t timeoutMs) {
     Serial.print("[AT] >> ");
     Serial.println(cmd);
 
@@ -72,6 +88,80 @@ void sendAT(const char* cmd, uint32_t timeoutMs = 2000) {
         }
     }
     Serial.println();
+}
+
+// ---------------------------------------------------------------------------
+// Send AT command, return response as String
+// ---------------------------------------------------------------------------
+String sendATGetResponse(const char* cmd, uint32_t timeoutMs) {
+    modemSerial.println(cmd);
+    String response;
+    uint32_t start = millis();
+    while (millis() - start < timeoutMs) {
+        while (modemSerial.available()) {
+            char c = modemSerial.read();
+            if (response.length() < AT_BUFFER_MAX_LEN) {  // Memory overflow protection
+                response += c;
+            }
+        }
+    }
+    return response;
+}
+
+// ---------------------------------------------------------------------------
+// Establish LTE data connection
+// ---------------------------------------------------------------------------
+bool connectToNetwork() {
+    Serial.println("[NET] Configuring APN...");
+
+    // Set APN
+    String apnCmd = String("AT+CGDCONT=1,\"IP\",\"") + ORANGE_APN + "\"";
+    sendAT(apnCmd.c_str());
+
+    // Activate PDP context
+    sendAT("AT+CGACT=1,1", 10000);
+
+    // Check if IP assigned
+    String response = sendATGetResponse("AT+CGPADDR=1", 3000);
+    Serial.print("[NET] IP response: ");
+    Serial.println(response);
+
+    if (response.indexOf("+CGPADDR: 1,") >= 0 && response.indexOf("0.0.0.0") == -1) {
+        Serial.println("[NET] Connected successfully");
+        return true;
+    }
+
+    Serial.println("[NET] Connection failed");
+    return false;
+}
+
+// ---------------------------------------------------------------------------
+// Send test HTTP GET request
+// ---------------------------------------------------------------------------
+void testHttpGet() {
+    Serial.println("[NET] Sending test HTTP GET to example.com...");
+
+    // Initialize HTTP service
+    sendAT("AT+HTTPINIT", 3000);
+
+    // Set URL
+    sendAT("AT+HTTPPARA=\"URL\",\"http://example.com\"", 3000);
+
+    // Set connection type
+    sendAT("AT+HTTPPARA=\"CONNECTTO\",60", 3000);
+
+    // Execute GET request (method=0 for GET)
+    String response = sendATGetResponse("AT+HTTPACTION=0", 10000);
+    Serial.print("[NET] HTTP action response: ");
+    Serial.println(response);
+
+    // Read response data
+    sendAT("AT+HTTPREAD=0,200", 5000);
+
+    // Terminate HTTP service
+    sendAT("AT+HTTPTERM", 2000);
+
+    Serial.println("[NET] HTTP test complete");
 }
 
 // ---------------------------------------------------------------------------
@@ -94,13 +184,23 @@ void handleSerialCommand() {
         sendAT("AT+CREG?");      // Network registration
         sendAT("AT+COPS?");      // Operator name
         sendAT("AT+CIMI");       // SIM IMSI number
+    } else if (cmd == "netstatus") {
+        Serial.println("[CMD] Network status...");
+        sendAT("AT+CREG?");      // Registration status
+        sendAT("AT+CSQ");        // Signal strength
+        sendAT("AT+CGPADDR=1");  // Assigned IP address
+        sendAT("AT+CGACT?");     // PDP context status
+    } else if (cmd == "connect") {
+        connectToNetwork();
+    } else if (cmd == "ping") {
+        testHttpGet();
     } else if (cmd == "status") {
         Serial.println("[INFO] LILYGO T-A7670E R2");
-        Serial.println("[INFO] Type 'modem' for modem diagnostics");
+        Serial.println("[INFO] Commands: modem | netstatus | connect | ping | status");
     } else {
         Serial.print("[CMD] Unknown: '");
         Serial.print(cmd);
-        Serial.println("'. Commands: modem | status");
+        Serial.println("'. Commands: modem | netstatus | connect | ping | status");
     }
 }
 
@@ -119,7 +219,7 @@ void setup() {
     modemPowerOn();
 
     Serial.println("[INFO] Ready");
-    Serial.println("Commands: modem | status");
+    Serial.println("Commands: modem | netstatus | connect | ping | status");
 }
 
 void loop() {
