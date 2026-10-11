@@ -36,6 +36,15 @@ TEST(BoardConfigTest, NativeCameraPinsAreMinusOne) {
     EXPECT_EQ(CAM_PCLK_PIN,  -1);
 }
 
+TEST(BoardConfigTest, NativeModemPinsAreMinusOne) {
+    EXPECT_EQ(MODEM_TX_PIN,       -1);
+    EXPECT_EQ(MODEM_RX_PIN,       -1);
+    EXPECT_EQ(MODEM_PWRKEY_PIN,   -1);
+    EXPECT_EQ(MODEM_POWERON_PIN,  -1);
+    EXPECT_EQ(MODEM_RESET_PIN,    -1);
+    EXPECT_EQ(MODEM_BAUD,          0);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
