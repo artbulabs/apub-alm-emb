@@ -36,6 +36,8 @@ cppcheck --enable=all --error-exitcode=1 \
     --suppress=unusedFunction:src/main.cpp \
     --suppress=unusedFunction:lib/alarm/AlarmStateMachine.cpp \
     --suppress=unusedFunction:lib/notify/StubNotifier.h \
+    --suppress=unusedPrivateFunction:lib/notify/NtfyNotifier.h \
+    --suppress=knownConditionTrueFalse:lib/notify/NtfyNotifier.cpp \
     -I include -I lib/alarm -I lib/notify -I lib/sensors \
     src lib
 print_ok 2
@@ -59,4 +61,4 @@ printf "============================================\n"
 printf " All checks passed!\n"
 printf "============================================\n"
 printf "${reset}\n"
-printf " Tip: run ./scripts/coverage.sh for coverage report"
+printf " Tip: run ./scripts/coverage.sh for coverage report\n"

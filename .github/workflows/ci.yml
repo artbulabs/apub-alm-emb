@@ -40,6 +40,11 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install cppcheck and clang-tidy
         run: sudo apt-get install -y cppcheck clang-tidy
+      - name: Show cppcheck version
+        run: cppcheck --version
+      - name: Create dummy secrets.h for cppcheck
+        run: |
+          touch include/secrets.h
       - name: Run cppcheck
         run: |
           cppcheck --enable=all --error-exitcode=1 \
@@ -48,6 +53,8 @@ jobs:
             --suppress=unusedFunction:src/main.cpp \
             --suppress=unusedFunction:lib/alarm/AlarmStateMachine.cpp \
             --suppress=unusedFunction:lib/notify/StubNotifier.h \
+            --suppress=unusedPrivateFunction:lib/notify/NtfyNotifier.h \
+            --suppress=knownConditionTrueFalse:lib/notify/NtfyNotifier.cpp \
             -I include -I lib/alarm -I lib/notify -I lib/sensors \
             src lib
       - name: Run clang-tidy

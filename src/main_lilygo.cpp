@@ -1,17 +1,22 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
+#include "CompositeNotifier.h"
+#include "NtfyNotifier.h"
+#include "SerialNotifier.h"
 #include "board_config.h"
+#include "config.h"
+#include "secrets.h"
 
 // Maximum buffer size for AT command responses and URC messages
 static constexpr uint16_t AT_BUFFER_MAX_LEN = 512;
 
 // ---------------------------------------------------------------------------
-// APN configuration for Orange Poland
+//  Notifiers (Composite pattern - add more channels here in future)
 // ---------------------------------------------------------------------------
-#define ORANGE_APN "internet"
-#define ORANGE_USER "internet"
-#define ORANGE_PASS "internet"
+static NtfyNotifier ntfyNotifier(NTFY_SERVER, NTFY_TOPIC);
+static SerialNotifier serialNotifier;
+static CompositeNotifier notifier;
 
 // ---------------------------------------------------------------------------
 // Modem serial port
@@ -194,13 +199,16 @@ void handleSerialCommand() {
         connectToNetwork();
     } else if (cmd == "ping") {
         testHttpGet();
+    } else if (cmd == "notify") {
+        Serial.println("[CMD] Sending test notification...");
+        ntfyNotifier.sendAlert("TEST");
     } else if (cmd == "status") {
         Serial.println("[INFO] LILYGO T-A7670E R2");
-        Serial.println("[INFO] Commands: modem | netstatus | connect | ping | status");
+        Serial.println("[INFO] Commands: modem | netstatus | connect | ping | notify | status");
     } else {
         Serial.print("[CMD] Unknown: '");
         Serial.print(cmd);
-        Serial.println("'. Commands: modem | netstatus | connect | ping | status");
+        Serial.println("'. Commands: modem | netstatus | connect | ping | notify | status");
     }
 }
 
@@ -218,8 +226,14 @@ void setup() {
 
     modemPowerOn();
 
+    // Register notifiers
+    notifier.add(&serialNotifier);
+    if (NTFY_ENABLED) {
+        notifier.add(&ntfyNotifier);
+    }
+
     Serial.println("[INFO] Ready");
-    Serial.println("Commands: modem | netstatus | connect | ping | status");
+    Serial.println("Commands: modem | netstatus | connect | ping | notify | status");
 }
 
 void loop() {

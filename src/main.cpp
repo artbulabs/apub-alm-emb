@@ -4,9 +4,12 @@
 #include "AlarmStateMachine.h"
 #include "CompositeNotifier.h"
 #include "DebouncedInput.h"
+#include "NtfyNotifier.h"
 #include "SerialNotifier.h"
 #include "board_config.h"
+#include "config.h"
 #include "espnow_message.h"
+#include "secrets.h"
 
 // MAC address of ESP32-CAM node.
 // Run 'mac' command on ESP32-CAM Serial Monitor to get this value.
@@ -46,6 +49,7 @@ static DebouncedInput reed2(readReed2, 50);
 // ---------------------------------------------------------------------------
 //  Notifiers (Composite pattern - add more channels here in future)
 // ---------------------------------------------------------------------------
+static NtfyNotifier ntfyNotifier(NTFY_SERVER, NTFY_TOPIC);
 static SerialNotifier serialNotifier;
 static CompositeNotifier notifier;
 
@@ -161,12 +165,15 @@ void handleSerialCommand() {
         // Serial.println("[CMD] Disarmed");
         notifier.sendStatus("Disarmed");
         printStatus();
+    } else if (cmd == "notify") {
+        Serial.println("[CMD] Sending test notification...");
+        ntfyNotifier.sendAlert("TEST");
     } else if (cmd == "status") {
         printStatus();
     } else {
         Serial.print("[CMD] Unknown command: '");
         Serial.print(cmd);
-        Serial.println("'. Commands: arm | disarm | status");
+        Serial.println("'. Commands: arm | disarm | notify | status");
     }
 }
 
@@ -179,11 +186,14 @@ void setup() {
 
     // Register notifiers (add NtfyNotifier, SmsNotifier here in future)
     notifier.add(&serialNotifier);
+    if (NTFY_ENABLED) {
+        notifier.add(&ntfyNotifier);
+    }
 
     Serial.println("=== Alpha Alarm System ===");
     Serial.println("Board: " BOARD_NAME);
     // Serial.println("Monitoring sensors...");
-    Serial.println("Commands: arm | disarm | status");
+    Serial.println("Commands: arm | disarm | notify | status");
     printStatus();
 
     pinMode(PIR1_PIN, INPUT);
