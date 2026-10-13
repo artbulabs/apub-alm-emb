@@ -48,6 +48,8 @@ jobs:
             --suppress=unusedFunction:src/main.cpp \
             --suppress=unusedFunction:lib/alarm/AlarmStateMachine.cpp \
             --suppress=unusedFunction:lib/notify/StubNotifier.h \
+            --suppress=unusedPrivateFunction:lib/notify/NtfyNotifier.h \
+            --suppress=knownConditionTrueFalse:lib/notify/NtfyNotifier.cpp \
             -I include -I lib/alarm -I lib/notify -I lib/sensors \
             src lib
       - name: Run clang-tidy
